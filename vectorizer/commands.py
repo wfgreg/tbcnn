@@ -7,6 +7,7 @@ import sys
 import pickle
 import vectorizer.ast2vec.train as ast2vec
 from vectorizer.node_map import NODE_LIST
+from vectorizer.node_map_php import PHP_NODE_LIST
 
 LOG_FILE = 'vectorizer/vectorizer.log'
 
@@ -52,6 +53,12 @@ def main():
     )
 
     parser.add_argument(
+        '--php',
+        action='store_true',
+        help='Output file to store the embeddings'
+    )
+
+    parser.add_argument(
         '--checkpoint',
         type=str,
         help='Directory to store checkpoints for TensorFlow'
@@ -63,4 +70,4 @@ def main():
         samples = pickle.load(sample_file)
 
     if args.model.lower() == 'ast2vec':
-        ast2vec.learn_vectors(samples, args.checkpoint, args.outfile)
+        ast2vec.learn_vectors(args, samples, args.checkpoint, args.outfile)

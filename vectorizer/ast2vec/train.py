@@ -6,16 +6,17 @@ import cPickle as pickle
 import tensorflow as tf
 import vectorizer.ast2vec.network as network
 import vectorizer.ast2vec.sampling as sampling
+from vectorizer.node_map_php import PHP_NODE_MAP
 from vectorizer.node_map import NODE_MAP
 from vectorizer.ast2vec.parameters import \
     NUM_FEATURES, LEARN_RATE, BATCH_SIZE, EPOCHS, CHECKPOINT_EVERY
 from tensorflow.contrib.tensorboard.plugins import projector
 
-def learn_vectors(samples, logdir, outfile, num_feats=NUM_FEATURES, epochs=EPOCHS):
+def learn_vectors(args, samples, logdir, outfile, num_feats=NUM_FEATURES, epochs=EPOCHS):
     """Learn a vector representation of Python AST nodes."""
 
     # build the inputs and outputs of the network
-    input_node, label_node, embed_node, loss_node = network.init_net(
+    input_node, label_node, embed_node, loss_node = network.init_net(args,
         num_feats=num_feats,
         batch_size=BATCH_SIZE
     )
@@ -36,7 +37,10 @@ def learn_vectors(samples, logdir, outfile, num_feats=NUM_FEATURES, epochs=EPOCH
         config = projector.ProjectorConfig()
         embedding = config.embeddings.add()
         embedding.tensor_name = embed_node.name
-        embedding.metadata_path = os.path.join('vectorizer', 'metadata.tsv')
+        if not args.php:
+            embedding.metadata_path = os.path.join('vectorizer', 'metadata.tsv')
+        else:
+            embedding.metadata_path = os.path.join('vectorizer', 'metadata_php.tsv')
         projector.visualize_embeddings(writer, config)
 
     sess.run(tf.global_variables_initializer())
@@ -47,7 +51,7 @@ def learn_vectors(samples, logdir, outfile, num_feats=NUM_FEATURES, epochs=EPOCH
 
     step = 0
     for epoch in range(1, epochs+1):
-        sample_gen = sampling.batch_samples(samples, BATCH_SIZE)
+        sample_gen = sampling.batch_samples(args, samples, BATCH_SIZE)
         for batch in sample_gen:
             input_batch, label_batch = batch
 
@@ -66,10 +70,16 @@ def learn_vectors(samples, logdir, outfile, num_feats=NUM_FEATURES, epochs=EPOCH
                 saver.save(sess, os.path.join(checkfile), step)
                 print('Checkpoint saved.')
                 # save embeddings
-                pickle.dump((embed, NODE_MAP), embed_file)
+                if not args.php:
+                    pickle.dump((embed, NODE_MAP), embed_file)
+                else:
+                    pickle.dump((embed, PHP_NODE_MAP), embed_file)
             step += 1
 
     # save embeddings and the mapping
-    pickle.dump((embed, NODE_MAP), embed_file)
+    if not args.php:
+        pickle.dump((embed, NODE_MAP), embed_file)
+    else:
+        pickle.dump((embed, PHP_NODE_MAP), embed_file)
     embed_file.close()
     saver.save(sess, os.path.join(checkfile), step)

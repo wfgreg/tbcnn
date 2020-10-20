@@ -5,10 +5,11 @@ import math
 import tensorflow as tf
 
 from vectorizer.node_map import NODE_MAP
+from vectorizer.node_map_php import PHP_NODE_MAP
 from vectorizer.ast2vec.parameters import \
     BATCH_SIZE, NUM_FEATURES, HIDDEN_NODES
 
-def init_net(
+def init_net(args,
         batch_size=BATCH_SIZE, num_feats=NUM_FEATURES, hidden_size=HIDDEN_NODES,
 ):
     """Construct the network graph."""
@@ -21,12 +22,21 @@ def init_net(
             labels = tf.placeholder(tf.int32, shape=[batch_size,], name='labels')
 
             # embeddings to learn
-            embeddings = tf.Variable(
-                tf.random_uniform([len(NODE_MAP), num_feats]), name='embeddings'
-            )
-
-            embed = tf.nn.embedding_lookup(embeddings, inputs)
-            onehot_labels = tf.one_hot(labels, len(NODE_MAP), dtype=tf.float32)
+            embeddings = None
+            embed = None
+            onehot_labels = None
+            if not args.php:
+                embeddings = tf.Variable(
+                    tf.random_uniform([len(NODE_MAP), num_feats]), name='embeddings'
+                )
+                embed = tf.nn.embedding_lookup(embeddings, inputs)
+                onehot_labels = tf.one_hot(labels, len(NODE_MAP), dtype=tf.float32)
+            else:
+                embeddings = tf.Variable(
+                    tf.random_uniform([len(PHP_NODE_MAP), num_feats]), name='embeddings'
+                )
+                embed = tf.nn.embedding_lookup(embeddings, inputs)
+                onehot_labels = tf.one_hot(labels, len(PHP_NODE_MAP), dtype=tf.float32)
 
         # weights will have features on the rows and nodes on the columns
         with tf.name_scope('hidden'):
@@ -45,16 +55,28 @@ def init_net(
             hidden = tf.tanh(tf.matmul(embed, weights) + biases)
 
         with tf.name_scope('softmax'):
-            weights = tf.Variable(
-                tf.truncated_normal(
-                    [hidden_size, len(NODE_MAP)],
-                    stddev=1.0 / math.sqrt(hidden_size)
-                ),
-                name='weights'
-            )
-            biases = tf.Variable(
-                tf.zeros((len(NODE_MAP),), name='biases')
-            )
+            if not args.php:
+                weights = tf.Variable(
+                    tf.truncated_normal(
+                        [hidden_size, len(NODE_MAP)],
+                        stddev=1.0 / math.sqrt(hidden_size)
+                    ),
+                    name='weights'
+                )
+                biases = tf.Variable(
+                    tf.zeros((len(NODE_MAP),), name='biases')
+                )
+            else:
+                weights = tf.Variable(
+                    tf.truncated_normal(
+                        [hidden_size, len(PHP_NODE_MAP)],
+                        stddev=1.0 / math.sqrt(hidden_size)
+                    ),
+                    name='weights'
+                )
+                biases = tf.Variable(
+                    tf.zeros((len(PHP_NODE_MAP),), name='biases')
+                )
 
             logits = tf.matmul(hidden, weights) + biases
 

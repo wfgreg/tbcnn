@@ -3,8 +3,8 @@
 import argparse
 import logging
 
-import sampler.trees as trees
-import sampler.nodes as nodes
+import samplerjson.trees as trees
+import samplerjson.nodes as nodes
 
 def main():
 

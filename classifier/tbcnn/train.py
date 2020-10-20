@@ -1,4 +1,4 @@
-"""Train the cnn model as  described in Lili Mou et al. (2015) 
+"""Train the cnn model as  described in Lili Mou et al. (2015)
 https://arxiv.org/pdf/1409.5718.pdf"""
 
 import os
@@ -16,7 +16,7 @@ def train_model(logdir, infile, embedfile, epochs=EPOCHS):
     """Train a classifier to label ASTs"""
 
     with open(infile, 'rb') as fh:
-        trees, _, labels = pickle.load(fh)
+        trees, _, cv, labels = pickle.load(fh)
 
     with open(embedfile, 'rb') as fh:
         embeddings, embed_lookup = pickle.load(fh)
@@ -102,4 +102,3 @@ def train_model(logdir, infile, embedfile, epochs=EPOCHS):
     print('Accuracy:', accuracy_score(correct_labels, predictions))
     print(classification_report(correct_labels, predictions, target_names=target_names))
     print(confusion_matrix(correct_labels, predictions))
-

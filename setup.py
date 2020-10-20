@@ -11,6 +11,7 @@ setup(
         "console_scripts": [
             "crawl=crawler.commands:main",
             "sample=sampler.commands:main",
+            "samplejson=samplerjson.commands:main",
             "vectorize=vectorizer.commands:main",
             "classify=classifier.commands:main",
         ]

@@ -5,6 +5,7 @@ import logging
 
 import classifier.tbcnn.train as tbcnn_train
 import classifier.tbcnn.test as tbcnn_test
+import classifier.tbcnn.predict as tbcnn_predict
 
 def main():
     """Commands to train and test classifiers."""
@@ -36,7 +37,24 @@ def main():
     )
     test_parser.set_defaults(action='test')
 
+    predict_parser = subparsers.add_parser(
+        'predict', help='Predict with a model'
+    )
+    predict_parser.add_argument('model', type=str, help='Model to use: options are "tbcnn"')
+#    predict_parser.add_argument('--labels', help='Data file to sample from')
+    predict_parser.add_argument('--infile', type=str, help='Data file to sample from')
+    predict_parser.add_argument('--logdir', type=str, help='File to store logs in')
+    predict_parser.add_argument(
+        '--embedfile', type=str, help='Learned vector embeddings from the vectorizer'
+    )
+    predict_parser.set_defaults(action='predict')
+
+
     args = parser.parse_args()
+
+#    if args.action == 'cv':
+#        if args.model == 'tbcnn':
+#            tbcnn_train.test_model(args.logdir, args.infile, args.embedfile)
 
     if args.action == 'train':
         if args.model == 'tbcnn':
@@ -44,4 +62,8 @@ def main():
 
     if args.action == 'test':
         if args.model == 'tbcnn':
-            tbcnn_test.test_model(args.logdir, args.infile, args.embedfile)
+            tbcnn_test.test_model(args, args.logdir, args.infile, args.embedfile)
+
+    if args.action == 'predict':
+        if args.model == 'tbcnn':
+            tbcnn_predict.predict_model(args, args.logdir, args.infile, args.embedfile)

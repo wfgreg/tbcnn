@@ -1,0 +1,166 @@
+#   https://docs.python.org/3/library/ast.html#abstract-grammar
+#   https://greentreesnakes.readthedocs.io/en/latest/nodes.html
+Node	Category
+Param
+Module	mod
+Comment
+Comment_Doc
+Scalar_LNumber
+Scalar_String
+Scalar_Encapsed
+Scalar_DNumber
+Scalar_EncapsedStringPart
+Scalar_MagicConst_Class
+Scalar_MagicConst_File
+Scalar_MagicConst_Namespace
+Scalar_MagicConst_Trait
+Scalar_MagicConst_Function
+Scalar_MagicConst_Line
+Scalar_MagicConst_Method
+Scalar_MagicConst_Dir
+NullableType
+UnionType
+Identifier
+Name_Relative
+Name_FullyQualified
+Stmt_Use  stmt
+Stmt_StaticVar  stmt
+Stmt_Class  stmt
+Stmt_Else  stmt
+Stmt_Unset  stmt
+Stmt_ClassConst  stmt
+Stmt_Finally  stmt
+Stmt_TraitUseAdaptation_Alias  stmt
+Stmt_TraitUseAdaptation_Precedence  stmt
+Stmt_Static  stmt
+Stmt_Interface  stmt
+Stmt_Property  stmt
+Stmt_While  stmt
+Stmt_Foreach  stmt
+Stmt_If  stmt
+Stmt_Catch  stmt
+Stmt_Namespace  stmt
+Stmt_Trait  stmt
+Stmt_Function  stmt
+Stmt_Echo  stmt
+Stmt_Nop  stmt
+Stmt_PropertyProperty  stmt
+Stmt_Throw  stmt
+Stmt_GroupUse  stmt
+Stmt_Global  stmt
+Stmt_Continue  stmt
+Stmt_Const  stmt
+Stmt_HaltCompiler  stmt
+Stmt_Do  stmt
+Stmt_InlineHTML  stmt
+Stmt_Break  stmt
+Stmt_TraitUse  stmt
+Stmt_ClassMethod  stmt
+Stmt_Goto  stmt
+Stmt_Expression  stmt
+Stmt_Switch  stmt
+Stmt_TryCatch  stmt
+Stmt_Label  stmt
+Stmt_Return  stmt
+Stmt_Declare  stmt
+Stmt_DeclareDeclare  stmt
+Stmt_UseUse  stmt
+Stmt_Case  stmt
+Stmt_For  stmt
+Stmt_ElseIf  stmt
+Const
+Name
+VarLikeIdentifier
+Expr_UnaryPlus  expr
+Expr_Array  expr
+Expr_BinaryOp_Plus  expr
+Expr_BinaryOp_Smaller  expr
+Expr_BinaryOp_GreaterOrEqual  expr
+Expr_BinaryOp_BooleanAnd  expr
+Expr_BinaryOp_Coalesce  expr
+Expr_BinaryOp_BitwiseXor  expr
+Expr_BinaryOp_LogicalAnd  expr
+Expr_BinaryOp_Pow  expr
+Expr_BinaryOp_LogicalXor  expr
+Expr_BinaryOp_BitwiseOr  expr
+Expr_BinaryOp_SmallerOrEqual  expr
+Expr_BinaryOp_Mul  expr
+Expr_BinaryOp_Concat  expr
+Expr_BinaryOp_Equal  expr
+Expr_BinaryOp_LogicalOr  expr
+Expr_BinaryOp_ShiftRight  expr
+Expr_BinaryOp_BooleanOr  expr
+Expr_BinaryOp_Identical  expr
+Expr_BinaryOp_Minus  expr
+Expr_BinaryOp_ShiftLeft  expr
+Expr_BinaryOp_BitwiseAnd  expr
+Expr_BinaryOp_Div  expr
+Expr_BinaryOp_Spaceship  expr
+Expr_BinaryOp_NotIdentical  expr
+Expr_BinaryOp_Mod  expr
+Expr_BinaryOp_NotEqual  expr
+Expr_BinaryOp_Greater  expr
+Expr_Isset  expr
+Expr_PostDec  expr
+Expr_List  expr
+Expr_FuncCall  expr
+Expr_NullsafeMethodCall  expr
+Expr_Error  expr
+Expr_BooleanNot  expr
+Expr_New  expr
+Expr_Clone  expr
+Expr_Yield  expr
+Expr_Cast_Array  expr
+Expr_Cast_Unset  expr
+Expr_Cast_Double  expr
+Expr_Cast_String  expr
+Expr_Cast_Int  expr
+Expr_Cast_Object  expr
+Expr_Cast_Bool  expr
+Expr_Variable  expr
+Expr_AssignRef  expr
+Expr_YieldFrom  expr
+Expr_NullsafePropertyFetch  expr
+Expr_AssignOp_Plus  expr
+Expr_AssignOp_Coalesce  expr
+Expr_AssignOp_BitwiseXor  expr
+Expr_AssignOp_Pow  expr
+Expr_AssignOp_BitwiseOr  expr
+Expr_AssignOp_Mul  expr
+Expr_AssignOp_Concat  expr
+Expr_AssignOp_ShiftRight  expr
+Expr_AssignOp_Minus  expr
+Expr_AssignOp_ShiftLeft  expr
+Expr_AssignOp_BitwiseAnd  expr
+Expr_AssignOp_Div  expr
+Expr_AssignOp_Mod  expr
+Expr_ClosureUse  expr
+Expr_PreInc  expr
+Expr_ArrayDimFetch  expr
+Expr_ArrowFunction  expr
+Expr_ShellExec  expr
+Expr_Include  expr
+Expr_BitwiseNot  expr
+Expr_Empty  expr
+Expr_StaticCall  expr
+Expr_ArrayItem  expr
+Expr_Print  expr
+Expr_Match  expr
+Expr_Throw  expr
+Expr_PreDec  expr
+Expr_Instanceof  expr
+Expr_PostInc  expr
+Expr_ClassConstFetch  expr
+Expr_MethodCall  expr
+Expr_Eval  expr
+Expr_Exit  expr
+Expr_UnaryMinus  expr
+Expr_Ternary  expr
+Expr_PropertyFetch  expr
+Expr_Assign  expr
+Expr_ConstFetch  expr
+Expr_Closure  expr
+Expr_ErrorSuppress  expr
+Expr_StaticPropertyFetch  expr
+Arg
+MatchArm

@@ -9,7 +9,7 @@ import classifier.tbcnn.network as network
 import classifier.tbcnn.sampling as sampling
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 
-def test_model(args, logdir, infile, embedfile):
+def predict_model(args, logdir, infile, embedfile):
     """Test a classifier to label ASTs"""
 
     with open(infile, 'rb') as fh:
@@ -54,10 +54,25 @@ def test_model(args, logdir, infile, embedfile):
         )
         correct_labels.append(np.argmax(batch_labels))
         predictions.append(np.argmax(output))
-        step += 1
-        print(step, '/', len(trees))
+#        print(step, '/', len(trees))
 
-    target_names = list(labels)
-    print('Accuracy:', accuracy_score(correct_labels, predictions))
-    print(classification_report(correct_labels, predictions, target_names=target_names))
-    print(confusion_matrix(correct_labels, predictions))
+        orig_num=np.argmax(batch_labels)
+        orig_label=labels[orig_num]+'   \t'
+        orig_label=""
+
+        pred_num=np.argmax(output)
+        pred_label=labels[pred_num]
+        pred_score=output[0][0][pred_num]
+        pred_item=str(step+1)+'/'+str(len(trees))
+        if 'meta' in trees[step].keys() and 'name' in trees[step]['meta'].keys():
+            pred_item+="   "+trees[step]['meta']['name']
+        print(pred_label+'   \t'+str(pred_score)+' \t'+orig_label+pred_item)
+
+        step += 1
+
+
+#    target_names = list(labels)
+#    print(target_names)
+#    print('Accuracy:', accuracy_score(correct_labels, predictions))
+#    print(classification_report(correct_labels, predictions, target_names=target_names))
+#    print(confusion_matrix(correct_labels, predictions))
