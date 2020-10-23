@@ -2,6 +2,11 @@
 
 import argparse
 import logging
+import re
+
+import classifier.tbcnn.train_ijson as tbcnn_train_ijson
+import classifier.tbcnn.test_ijson as tbcnn_test_ijson
+import classifier.tbcnn.predict_ijson as tbcnn_predict_ijson
 
 import classifier.tbcnn.train as tbcnn_train
 import classifier.tbcnn.test as tbcnn_test
@@ -58,12 +63,21 @@ def main():
 
     if args.action == 'train':
         if args.model == 'tbcnn':
-            tbcnn_train.train_model(args.logdir, args.infile, args.embedfile)
+            if re.match('.*\.pkl',args.infile):
+                tbcnn_train.train_model(args.logdir, args.infile, args.embedfile)
+            if re.match('.*\.train\.json',args.infile):
+                tbcnn_train_ijson.train_model(args.logdir, args.infile, args.embedfile)
 
     if args.action == 'test':
         if args.model == 'tbcnn':
-            tbcnn_test.test_model(args, args.logdir, args.infile, args.embedfile)
+            if re.match('.*\.pkl',args.infile):
+                tbcnn_test.test_model(args.logdir, args.infile, args.embedfile)
+            if re.match('.*\.test\.json',args.infile):
+                tbcnn_test_ijson.test_model(args, args.logdir, args.infile, args.embedfile)
 
     if args.action == 'predict':
         if args.model == 'tbcnn':
-            tbcnn_predict.predict_model(args, args.logdir, args.infile, args.embedfile)
+            if re.match('.*\.pkl',args.infile):
+                tbcnn_predict.predict_model(args, args.logdir, args.infile, args.embedfile)
+            if re.match('.*\.test\.json',args.infile):
+                tbcnn_predict_ijson.predict_model(args, args.logdir, args.infile, args.embedfile)

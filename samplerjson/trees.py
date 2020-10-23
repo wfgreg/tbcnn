@@ -9,11 +9,13 @@ import pickle
 import random
 from collections import defaultdict
 
+import subprocess
+
 import samplerjson.jsontree as jsontree
 pp=pprint.PrettyPrinter(indent=4)
 
 def parse(args):
-    if not args.picklize:
+    if args.ijson:
         """Parse trees with the given arguments."""
         print ('Loading json file')
 
@@ -35,7 +37,6 @@ def parse(args):
         f2 = open("/tmp/test.txt", 'wb')
         f3 = open("/tmp/train.txt", 'wb')
 
-        c=0
         for item in data_source:
             root = item['tree']
             label = item['metadata'][args.label_key]
@@ -51,15 +52,29 @@ def parse(args):
             else:
                 file_handler=f3
                 train_counts[label] += 1
-            file_handler.write(json.dumps(sample)+",\n")
-            c+=1
+            datum = {'tree': sample, 'label': label, 'meta': json.loads(json.dumps(item['metadata']))}
+            file_handler.write(json.dumps(datum)+",\n")
         f1.close()
         f2.close()
         f3.close()
 
         # implement shuffling algorithm?
+        for filelabel in ['train','test','cv']:
+            tmpfile="/tmp/"+filelabel
+            fout = open(tmpfile+".shuffled.txt","w")
+            with open(tmpfile+".txt") as inhandle:
+                p = subprocess.Popen("../terashuf/terashuf",stdin=inhandle,stdout=fout)
+                [output,error] = p.communicate()
+                rc = p.wait()
+            print(tmpfile+".shuffled.txt")
 
-
+        f1o = open(args.outfile+".cv.json", 'wb')
+        f2o = open(args.outfile+".test.json", 'wb')
+        f3o = open(args.outfile+".train.json", 'wb')
+        out_dict = {'cv':f1o,'test':f2o,'train':f3o}
+        f1o.write('[\n')
+        f2o.write('[\n')
+        f3o.write('[\n')
         labels = list(set(cv_counts.keys() + train_counts.keys() + test_counts.keys()))
         print(labels)
         print('Dumping sample')
@@ -67,18 +82,27 @@ def parse(args):
             out_handler.write('(\t[\n')
             for filelabel in ['train','test','cv']:
                 c=0
-                with open('/tmp/'+filelabel+'.txt', 'r') as in_handler:
+                tmpfile="/tmp/"+filelabel+'.shuffled.txt'
+                with open(tmpfile, 'r') as in_handler:
                     for line in in_handler:
+                        linestr=line.rstrip().rstrip(',')
                         if c:
-                            out_handler.write(",\n"+line.rstrip().rstrip(','))
+                            out_handler.write(",\n"+linestr)
+                            out_dict[filelabel].write(",\n"+linestr)
                         else:
-                            out_handler.write(line.rstrip().rstrip(','))
+                            out_handler.write(linestr)
+                            out_dict[filelabel].write(linestr)
                         c+=1
                 out_handler.write('\n],\t[\n')
+                out_dict[filelabel].write('\n]')
+                out_dict[filelabel].close()
             out_handler.write('],\n')
             out_handler.write(json.dumps(labels))
             out_handler.write('\n)')
 
+        f4o = open(args.outfile+".labels.json", 'wb')
+        f4o.write(json.dumps(labels))
+        f4o.close();
 
         print('dump finished')
         print('Sampled tree counts: ')
@@ -86,8 +110,10 @@ def parse(args):
         print('Training:', train_counts)
         print('Testing:', test_counts)
 
-    if not args.picklize:
         return
+
+
+
     """Parse trees with the given arguments."""
     print ('Loading json file')
 

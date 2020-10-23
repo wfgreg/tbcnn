@@ -10,7 +10,7 @@ import samplerjson.jsontree as jsontree
 pp=pprint.PrettyPrinter(indent=4)
 
 def parse(args):
-    if not args.picklize:
+    if args.ijson:
         """Parse nodes with the given args."""
         print ('Loading json file')
 
@@ -74,9 +74,9 @@ def parse(args):
         print(node_counts)
         print('Total: %d' % sum(node_counts.values()))
 
-
-    if not args.picklize:
         return
+
+
     """Parse nodes with the given args."""
     print ('Loading json file')
 

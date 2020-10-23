@@ -2,6 +2,7 @@
 
 import argparse
 import logging
+import re
 
 import samplerjson.trees as trees
 import samplerjson.nodes as nodes
@@ -16,7 +17,7 @@ def main():
     tree_parser = subparsers.add_parser(
         'trees', help='Sample trees from a data source.'
     )
-    tree_parser.add_argument('--picklize', action='store_true', help='')
+    tree_parser.add_argument('--ijson', action='store_true', help='')
     tree_parser.add_argument('--infile', type=str, help='Data file to sample from')
     tree_parser.add_argument('--outfile', type=str, help='File to store samples in')
     tree_parser.add_argument('--usecv', action='store_true', help='Use cross-validation data (use 15 default if given without cv)')
@@ -39,7 +40,7 @@ def main():
     node_parser = subparsers.add_parser(
         'nodes', help='Sample nodes from a data source.'
     )
-    node_parser.add_argument('--picklize', action='store_true', help='')
+    node_parser.add_argument('--ijson', action='store_true', help='')
     node_parser.add_argument('--infile', type=str, help='Data file to sample from')
     node_parser.add_argument('--outfile', type=str, help='File to store samples in')
     node_parser.add_argument(
@@ -59,5 +60,8 @@ def main():
             args.usecv = True
         elif args.usecv:
             args.cv = 15
+
+    if args.ijson and not re.match('.*\.json',args.outfile):
+        args.outfile+=".json"
 
     args.func(args)
