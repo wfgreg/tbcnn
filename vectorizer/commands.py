@@ -3,9 +3,10 @@
 import os
 import argparse
 import logging
-import sys
+import sys,re
 import pickle
 import vectorizer.ast2vec.train as ast2vec
+import vectorizer.ast2vec.train_ijson as ast2vec_ijson
 from vectorizer.node_map import NODE_LIST
 from vectorizer.node_map_php import PHP_NODE_LIST
 
@@ -66,8 +67,13 @@ def main():
 
     args = parser.parse_args()
 
-    with open(args.infile, 'rb') as sample_file:
-        samples = pickle.load(sample_file)
+    if re.match('.*\.pkl',args.infile):
+        with open(args.infile, 'rb') as sample_file:
+            samples = pickle.load(sample_file)
 
-    if args.model.lower() == 'ast2vec':
-        ast2vec.learn_vectors(args, samples, args.checkpoint, args.outfile)
+        if args.model.lower() == 'ast2vec':
+            ast2vec.learn_vectors(args, samples, args.checkpoint, args.outfile)
+
+    if re.match('.*\.json',args.infile):
+        if args.model.lower() == 'ast2vec':
+            ast2vec_ijson.learn_vectors(args, args.infile, args.checkpoint, args.outfile)

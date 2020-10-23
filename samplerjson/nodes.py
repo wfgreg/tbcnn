@@ -1,5 +1,6 @@
 """Parse nodes from a given data source."""
 
+import ijson.backends.yajl2_c as ijson
 import sys
 import ast,json,pprint,itertools
 import cPickle as pickle
@@ -9,11 +10,79 @@ import samplerjson.jsontree as jsontree
 pp=pprint.PrettyPrinter(indent=4)
 
 def parse(args):
+    if not args.picklize:
+        """Parse nodes with the given args."""
+        print ('Loading json file')
+
+        f = open(args.infile, 'rb')
+        data_source = ijson.items(f,'item')
+
+        node_counts = defaultdict(int)
+        samples = []
+        has_capacity = lambda x: args.per_node < 0 or node_counts[x] < args.per_node
+        can_add_more = lambda: args.limit < 0 or len(samples) < args.limit
+        print ('Json load finished')
+
+        fc=0
+        c=0
+        file_handler = open(args.outfile, 'wb')
+        file_handler.write("[\t")
+
+        for item in data_source:
+            root = None
+            samples = []
+            if 'tree' in item.keys() and isinstance(item['tree'],list):
+                root = item['tree']
+            else:
+                root = item
+            if not root:
+                continue
+            new_samples = [
+                {
+                    'node': "Module",
+                    'nodeType': "Module",
+                    'parent': None,
+                    'children': [_name(x) for x in jsontree.JsonTree.iter_child_nodes(root)]
+    #                'children': [_name(x) for x in ast.iter_child_nodes(root)]
+                }
+            ]
+            gen_samples = lambda x,p: new_samples.extend(_create_samples(x,p))
+            _traverse_tree(_name(new_samples[0]), root, gen_samples)
+            for sample in new_samples:
+                if has_capacity(sample['node']):
+                    samples.append(sample)
+                    node_counts[sample['node']] += 1
+                if not can_add_more:
+                    break
+            if not can_add_more:
+                break
+            for sample in samples:
+#                print (sample)
+                if c:
+                    file_handler.write(",\n"+json.dumps(sample, indent=2))
+                else:
+                    file_handler.write(json.dumps(sample, indent=2))
+                c+=1
+            print(fc, len(new_samples), item['metadata']['name'])
+            fc+=1
+        print ('dumping sample')
+
+        file_handler.write("]")
+        file_handler.close()
+
+        print('Sampled node counts:')
+        print(node_counts)
+        print('Total: %d' % sum(node_counts.values()))
+
+
+    if not args.picklize:
+        return
     """Parse nodes with the given args."""
     print ('Loading json file')
 
     with open(args.infile, 'rb') as file_handler:
         data_source = json.load(file_handler)
+
     print ('Json load finished')
 
     node_counts = defaultdict(int)
@@ -40,9 +109,6 @@ def parse(args):
             }
         ]
         gen_samples = lambda x,p: new_samples.extend(_create_samples(x,p))
-#        print("***A1***")
-#        print(new_samples[0]["children"])
-#        print("***B1***")
         _traverse_tree(_name(new_samples[0]), root, gen_samples)
         for sample in new_samples:
             if has_capacity(sample['node']):
