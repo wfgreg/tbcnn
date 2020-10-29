@@ -1,6 +1,7 @@
 """Commands for testing a trained classifier."""
 
 import ijson.backends.yajl2_c as ijson
+import json
 import os
 import logging
 import pickle

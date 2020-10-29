@@ -24,12 +24,7 @@ def get_line_count(filepath):
 def train_model(logdir, infile, embedfile, epochs=EPOCHS):
     """Train a classifier to label ASTs"""
 
-#    f = open(args.infile, 'rb')
-#    data_source = ijson.items(f,'item')
-
     labels=["benign","malicious"]
-#    with open(infile, 'rb') as fh:
-#        trees, _, cv, labels = pickle.load(fh)
 
     with open(embedfile, 'rb') as fh:
         embeddings, embed_lookup = pickle.load(fh)

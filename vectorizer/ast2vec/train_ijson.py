@@ -1,5 +1,6 @@
 """Train the ast2vect network."""
 
+import json
 import os
 import logging
 import cPickle as pickle
@@ -31,6 +32,7 @@ def learn_vectors(args, samplefile, logdir, outfile, num_feats=NUM_FEATURES, epo
     sess = tf.Session()
 
     with tf.name_scope('saver'):
+        # Saver instance.  To save network graph for future use after training.
         saver = tf.train.Saver()
         summaries = tf.summary.merge_all()
         writer = tf.summary.FileWriter(logdir, sess.graph)
@@ -63,11 +65,10 @@ def learn_vectors(args, samplefile, logdir, outfile, num_feats=NUM_FEATURES, epo
                     label_node: label_batch
                 }
             )
-
             print('Epoch: ', epoch, 'Loss: ', err)
             writer.add_summary(summary, step)
             if step % CHECKPOINT_EVERY == 0:
-                # save state so we can resume later
+                # save state (tensorflow variables) so we can resume later
                 saver.save(sess, os.path.join(checkfile), step)
                 print('Checkpoint saved.')
                 # save embeddings
@@ -82,5 +83,6 @@ def learn_vectors(args, samplefile, logdir, outfile, num_feats=NUM_FEATURES, epo
         pickle.dump((embed, NODE_MAP), embed_file)
     else:
         pickle.dump((embed, PHP_NODE_MAP), embed_file)
+
     embed_file.close()
     saver.save(sess, os.path.join(checkfile), step)
