@@ -42,6 +42,9 @@ def parse(args):
             label = item['metadata'][args.label_key]
             sample, size = _traverse_tree(root)
 
+            if size > args.maxsize or size < args.minsize:
+                continue
+
             roll = random.randint(0, 100)
             if args.usecv and roll < args.cv:
                 file_handler=f1

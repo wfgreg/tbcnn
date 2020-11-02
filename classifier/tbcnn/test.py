@@ -9,7 +9,7 @@ import classifier.tbcnn.network as network
 import classifier.tbcnn.sampling as sampling
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 
-def test_model(args, logdir, infile, embedfile):
+def test_model(logdir, infile, embedfile):
     """Test a classifier to label ASTs"""
 
     with open(infile, 'rb') as fh:

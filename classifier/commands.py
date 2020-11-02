@@ -66,7 +66,7 @@ def main():
             if re.match('.*\.pkl',args.infile):
                 tbcnn_train.train_model(args.logdir, args.infile, args.embedfile)
             if re.match('.*\.train\.json',args.infile):
-                tbcnn_train_ijson.train_model(args.logdir, args.infile, args.embedfile)
+                tbcnn_train_ijson.train_model(args, args.logdir, args.infile, args.embedfile)
 
     if args.action == 'test':
         if args.model == 'tbcnn':

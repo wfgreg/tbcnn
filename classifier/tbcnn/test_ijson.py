@@ -54,10 +54,10 @@ def test_model(args, logdir, infile, embedfile):
     predictions = []
     step = 0
     size = get_line_count(infile)
-    for batch in sampling.batch_samples(
-        sampling_ijson.gen_samples(infile, labels, embeddings, embed_lookup), 1
+    for batch in sampling_ijson.batch_samples_ijson(
+        args, sampling_ijson.gen_samples_ijson(infile, labels, embeddings, embed_lookup), 1
     ):
-        nodes, children, batch_labels = batch
+        nodes, children, meta, batch_labels = batch
         output = sess.run([out_node],
             feed_dict={
                 nodes_node: nodes,

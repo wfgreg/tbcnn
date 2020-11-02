@@ -63,7 +63,7 @@ def parse(args):
                 else:
                     file_handler.write(json.dumps(sample, indent=2))
                 c+=1
-            print(fc, len(new_samples), item['metadata']['name'])
+#            print(fc, len(new_samples), item['metadata']['name'])
             fc+=1
         print ('dumping sample')
 

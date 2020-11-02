@@ -2,7 +2,7 @@
 https://arxiv.org/pdf/1409.5718.pdf"""
 
 import ijson.backends.yajl2_c as ijson
-import os
+import os,sys
 import logging
 import pickle
 import tensorflow as tf
@@ -11,7 +11,7 @@ import classifier.tbcnn.network as network
 import classifier.tbcnn.sampling_ijson as sampling_ijson
 import classifier.tbcnn.sampling as sampling
 from classifier.tbcnn.parameters import LEARN_RATE, EPOCHS, \
-    CHECKPOINT_EVERY, BATCH_SIZE
+    CHECKPOINT_EVERY, BATCH_SIZE, KBATCH_SIZE
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 
 def get_line_count(filepath):
@@ -21,7 +21,7 @@ def get_line_count(filepath):
     f.close()
     return (i+1)
 
-def train_model(logdir, infile, embedfile, epochs=EPOCHS):
+def train_model(args, logdir, infile, embedfile, epochs=EPOCHS):
     """Train a classifier to label ASTs"""
 
     labels=["benign","malicious"]
@@ -58,10 +58,10 @@ def train_model(logdir, infile, embedfile, epochs=EPOCHS):
     num_batches = get_line_count(infile)-2
 #    num_batches = len(trees) // BATCH_SIZE + (1 if len(trees) % BATCH_SIZE != 0 else 0)
     for epoch in range(1, epochs+1):
-        for i, batch in enumerate(sampling.batch_samples(
-            sampling_ijson.gen_samples(infile, labels, embeddings, embed_lookup), BATCH_SIZE
+        for i, batch in enumerate(sampling_ijson.batch_samples_ijson(
+            args, sampling_ijson.gen_samples_ijson(infile, labels, embeddings, embed_lookup), BATCH_SIZE
         )):
-            nodes, children, batch_labels = batch
+            nodes, children, meta, batch_labels = batch
             step = (epoch - 1) * num_batches + i * BATCH_SIZE
 
             if not nodes:
@@ -94,10 +94,10 @@ def train_model(logdir, infile, embedfile, epochs=EPOCHS):
     correct_labels = []
     predictions = []
     print('Computing training accuracy...')
-    for batch in sampling.batch_samples(
-        sampling_ijson.gen_samples(infile, labels, embeddings, embed_lookup), 1
+    for batch in sampling_ijson.batch_samples_ijson(
+        args, sampling_ijson.gen_samples_ijson(infile, labels, embeddings, embed_lookup), 1
     ):
-        nodes, children, batch_labels = batch
+        nodes, children, meta, batch_labels = batch
         output = sess.run([out_node],
             feed_dict={
                 nodes_node: nodes,

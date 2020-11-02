@@ -6,14 +6,23 @@ import pickle
 import numpy as np
 import tensorflow as tf
 import classifier.tbcnn.network as network
+import classifier.tbcnn.sampling_ijson as sampling_ijson
 import classifier.tbcnn.sampling as sampling
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+
+def get_line_count(filepath):
+    with open(filepath) as f:
+        for i, line in enumerate(f):
+            pass
+    f.close()
+    return (i+1)
 
 def predict_model(args, logdir, infile, embedfile):
     """Test a classifier to label ASTs"""
 
-    with open(infile, 'rb') as fh:
-        _, trees, cv, labels = pickle.load(fh)
+    labels=["benign","malicious"]
+#    with open(infile, 'rb') as fh:
+#        _, trees, cv, labels = pickle.load(fh)
 
     with open(embedfile, 'rb') as fh:
         embeddings, embed_lookup = pickle.load(fh)
@@ -42,10 +51,11 @@ def predict_model(args, logdir, infile, embedfile):
     # make predicitons from the input
     predictions = []
     step = 0
-    for batch in sampling.batch_samples(
-        sampling.gen_samples(trees, labels, embeddings, embed_lookup), 1
+    size = get_line_count(infile)
+    for batch in sampling_ijson.batch_samples_ijson(
+        args, sampling_ijson.gen_samples_ijson(infile, labels, embeddings, embed_lookup), 1
     ):
-        nodes, children, batch_labels = batch
+        nodes, children, meta, batch_labels = batch
         output = sess.run([out_node],
             feed_dict={
                 nodes_node: nodes,
@@ -63,10 +73,10 @@ def predict_model(args, logdir, infile, embedfile):
         pred_num=np.argmax(output)
         pred_label=labels[pred_num]
         pred_score=output[0][0][pred_num]
-        pred_item=str(step+1)+'/'+str(len(trees))
-        if 'meta' in trees[step].keys() and 'name' in trees[step]['meta'].keys():
-            pred_item+="   "+trees[step]['meta']['name']
-        print(pred_label+'   \t'+str(pred_score)+' \t'+orig_label+pred_item)
+        pred_item=str(step+1)+'/'+str(size)
+        if 'name' in meta[0].keys():
+            pred_item+="   "+meta[0]['name']
+        print(pred_label+'   \t'+str(output[0][0])+' \t'+orig_label+pred_item)
 
         step += 1
 
