@@ -1,17 +1,26 @@
 """Train the ast2vect network."""
+#   https://stackoverflow.com/questions/58986126/replacing-placeholder-for-tensorflow-v2
 
 import json
 import os
 import logging
-import cPickle as pickle
+#import cPickle as pickle
+import pickle
 import tensorflow as tf
+from packaging import version
 import vectorizer.ast2vec.network as network
 import vectorizer.ast2vec.sampling_ijson as sampling_ijson
 from vectorizer.node_map_php import PHP_NODE_MAP
 from vectorizer.node_map import NODE_MAP
 from vectorizer.ast2vec.parameters import \
     NUM_FEATURES, LEARN_RATE, BATCH_SIZE, EPOCHS, CHECKPOINT_EVERY
-from tensorflow.contrib.tensorboard.plugins import projector
+
+if version.parse(tf.__version__) > version.parse("2.0.0"):
+    from tensorboard.plugins import projector
+    import tensorflow.compat.v1 as tf
+    tf.disable_v2_behavior()
+else:
+    from tensorflow.contrib.tensorboard.plugins import projector
 
 def learn_vectors(args, samplefile, logdir, outfile, num_feats=NUM_FEATURES, epochs=EPOCHS):
     """Learn a vector representation of Python AST nodes."""

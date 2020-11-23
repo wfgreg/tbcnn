@@ -2,15 +2,23 @@
 
 import os
 import logging
-import cPickle as pickle
+#import cPickle as pickle
+import pickle
 import tensorflow as tf
+from packaging import version
 import vectorizer.ast2vec.network as network
 import vectorizer.ast2vec.sampling as sampling
 from vectorizer.node_map_php import PHP_NODE_MAP
 from vectorizer.node_map import NODE_MAP
 from vectorizer.ast2vec.parameters import \
     NUM_FEATURES, LEARN_RATE, BATCH_SIZE, EPOCHS, CHECKPOINT_EVERY
-from tensorflow.contrib.tensorboard.plugins import projector
+
+if version.parse(tf.__version__) > version.parse("2.0.0"):
+    print("x")
+    from tensorboard.plugins import projector
+else:
+    print("y")
+    from tensorflow.contrib.tensorboard.plugins import projector
 
 def learn_vectors(args, samples, logdir, outfile, num_feats=NUM_FEATURES, epochs=EPOCHS):
     """Learn a vector representation of Python AST nodes."""

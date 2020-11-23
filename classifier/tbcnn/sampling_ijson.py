@@ -3,9 +3,10 @@
 import ijson.backends.yajl2_c as ijson
 
 import sys
-import pickle,json
+import pickle,json,pprint
 import numpy as np
 import random
+pp = pprint.PrettyPrinter(indent=4)
 
 def gen_samples_ijson(infile, labels, vectors, vector_lookup):
     """Creates a generator that returns a tree in BFS order with each node
@@ -16,6 +17,7 @@ def gen_samples_ijson(infile, labels, vectors, vector_lookup):
 
     f = open(infile, 'rb')
     trees = ijson.items(f,'item')
+
 
     for tree in trees:
         nodes = [] # array (with an entry per node of tree) of vectors holding feature weights (from vectorizer) for node type
@@ -65,6 +67,11 @@ def batch_samples_ijson(args, gen, batch_size):
 def _pad_batch_ijson(nodes, children, meta, labels):
     if not nodes:
         return [], [], [], []
+
+    lens=[]
+    for x in children[0]:
+        lens+=[len(x)]
+
     max_nodes = max([len(x) for x in nodes])
     max_children = max([len(x) for x in children])
     feature_len = len(nodes[0][0])

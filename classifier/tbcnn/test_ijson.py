@@ -23,8 +23,6 @@ def test_model(args, logdir, infile, embedfile):
     """Test a classifier to label ASTs"""
 
     labels=["benign","malicious"]
-#    with open(infile, 'rb') as fh:
-#        _, trees, cv, labels = pickle.load(fh)
 
     with open(embedfile, 'rb') as fh:
         embeddings, embed_lookup = pickle.load(fh)

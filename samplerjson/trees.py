@@ -33,9 +33,9 @@ def parse(args):
         cv_counts = defaultdict(int)
         test_counts = defaultdict(int)
 
-        f1 = open("/tmp/cv.txt", 'wb')
-        f2 = open("/tmp/test.txt", 'wb')
-        f3 = open("/tmp/train.txt", 'wb')
+        f1 = open("/tmp/cv.txt", 'w')
+        f2 = open("/tmp/test.txt", 'w')
+        f3 = open("/tmp/train.txt", 'w')
 
         for item in data_source:
             root = item['tree']
@@ -49,7 +49,10 @@ def parse(args):
             if args.usecv and roll < args.cv:
                 file_handler=f1
                 cv_counts[label] += 1
-            elif roll < args.test:
+            elif args.usecv and roll < (args.cv + args.test):
+                file_handler=f2
+                test_counts[label] += 1
+            elif not args.usecv and roll < args.test:
                 file_handler=f2
                 test_counts[label] += 1
             else:
@@ -71,17 +74,17 @@ def parse(args):
                 rc = p.wait()
             print(tmpfile+".shuffled.txt")
 
-        f1o = open(args.outfile+".cv.json", 'wb')
-        f2o = open(args.outfile+".test.json", 'wb')
-        f3o = open(args.outfile+".train.json", 'wb')
+        f1o = open(args.outfile+".cv.json", 'w')
+        f2o = open(args.outfile+".test.json", 'w')
+        f3o = open(args.outfile+".train.json", 'w')
         out_dict = {'cv':f1o,'test':f2o,'train':f3o}
         f1o.write('[\n')
         f2o.write('[\n')
         f3o.write('[\n')
-        labels = list(set(cv_counts.keys() + train_counts.keys() + test_counts.keys()))
+        labels = list(set(itertools.chain(cv_counts.keys(),train_counts.keys(),test_counts.keys())))
         print(labels)
         print('Dumping sample')
-        with open(args.outfile, 'wb') as out_handler:
+        with open(args.outfile, 'w') as out_handler:
             out_handler.write('(\t[\n')
             for filelabel in ['train','test','cv']:
                 c=0
@@ -103,7 +106,7 @@ def parse(args):
             out_handler.write(json.dumps(labels))
             out_handler.write('\n)')
 
-        f4o = open(args.outfile+".labels.json", 'wb')
+        f4o = open(args.outfile+".labels.json", 'w')
         f4o.write(json.dumps(labels))
         f4o.close();
 
@@ -122,7 +125,6 @@ def parse(args):
 
     sys.setrecursionlimit(1000000)
     with open(args.infile, 'rb') as file_handler:
-#        data_source = pickle.load(file_handler)
         data_source = json.load(file_handler)
 
     print('Json file load finished')
@@ -150,7 +152,10 @@ def parse(args):
         if args.usecv and roll < args.cv:
             cv_samples.append(datum)
             cv_counts[label] += 1
-        elif roll < args.test:
+        elif args.usecv and roll < (args.cv + args.test):
+            test_samples.append(datum)
+            test_counts[label] += 1
+        elif not args.usecv and roll < args.test:
             test_samples.append(datum)
             test_counts[label] += 1
         else:
@@ -176,7 +181,6 @@ def _traverse_tree(root):
     num_nodes = 1
     queue = [root]
     root_json = {
-#        "node": _name(root),
         "node": "Module",
         "children": []
     }
@@ -187,7 +191,6 @@ def _traverse_tree(root):
         current_node_json = queue_json.pop(0)
 
 
-#        children = list(ast.iter_child_nodes(current_node))
         children = list(jsontree.JsonTree.iter_child_nodes(current_node))
         queue.extend(children)
         for child in children:
@@ -201,5 +204,4 @@ def _traverse_tree(root):
     return root_json, num_nodes
 
 def _name(node):
-#    return type(node).__name__
     return node["nodeType"]

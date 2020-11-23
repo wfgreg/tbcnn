@@ -3,11 +3,16 @@
 import ijson.backends.yajl2_c as ijson
 import sys
 import ast,json,pprint,itertools
-import cPickle as pickle
+#import cPickle as pickle
+import pickle
 from collections import defaultdict
 
 import samplerjson.jsontree as jsontree
 pp=pprint.PrettyPrinter(indent=4)
+
+pyv3=False
+if (sys.version_info > (3, 0)):
+    pyv3=True
 
 def parse(args):
     if args.ijson:
@@ -25,7 +30,7 @@ def parse(args):
 
         fc=0
         c=0
-        file_handler = open(args.outfile, 'wb')
+        file_handler = open(args.outfile, 'w')
         file_handler.write("[\t")
 
         for item in data_source:
@@ -162,7 +167,10 @@ def _traverse_tree(parentname, tree, callback):
 #    print("================================")
 #    it = iter(tree)
 #    queue = list(zip([parentname],tree))
-    queue = list(itertools.izip_longest([parentname],[tree],fillvalue=parentname))
+    if not pyv3:
+        queue = list(itertools.izip_longest([parentname],[tree],fillvalue=parentname))
+    else:
+        queue = list(itertools.zip_longest([parentname],[tree],fillvalue=parentname))
 
 #    pp.pprint(queue)
 
@@ -188,7 +196,10 @@ def _traverse_tree(parentname, tree, callback):
 #        print('x',nextparentname)
         children = list(jsontree.JsonTree.iter_child_nodes(current_node))
         if len(children) > 0:
-            children_list = list(itertools.izip_longest([nextparentname],children,fillvalue=nextparentname))
+            if not pyv3:
+                children_list = list(itertools.izip_longest([nextparentname],children,fillvalue=nextparentname))
+            else:
+                children_list = list(itertools.zip_longest([nextparentname],children,fillvalue=nextparentname))
         else:
             children_list = []
 #        pp.pprint(children_list)

@@ -3,6 +3,13 @@ a strategy similar to word2vec, but applied to the context of AST's."""
 
 import math
 import tensorflow as tf
+from packaging import version
+if version.parse(tf.__version__) > version.parse("2.0.0"):
+    from tensorboard.plugins import projector
+    import tensorflow.compat.v1 as tf
+    tf.disable_v2_behavior()
+else:
+    from tensorflow.contrib.tensorboard.plugins import projector
 
 from vectorizer.node_map import NODE_MAP
 from vectorizer.node_map_php import PHP_NODE_MAP
@@ -27,6 +34,7 @@ def init_net(args,
             onehot_labels = None
             if not args.php:
                 embeddings = tf.Variable(
+                    #tf.random.uniform for v2
                     tf.random_uniform([len(NODE_MAP), num_feats]), name='embeddings'
                 )
                 embed = tf.nn.embedding_lookup(embeddings, inputs)
@@ -41,6 +49,7 @@ def init_net(args,
         # weights will have features on the rows and nodes on the columns
         with tf.name_scope('hidden'):
             weights = tf.Variable(
+                #tf.random.truncated_normal for v2
                 tf.truncated_normal(
                     [num_feats, hidden_size], stddev=1.0 / math.sqrt(num_feats)
                 ),
@@ -85,6 +94,7 @@ def init_net(args,
                 labels=onehot_labels, logits=logits, name='cross_entropy'
             )
 
+            #tf.math.reduce_mean for v2
             loss = tf.reduce_mean(cross_entropy, name='cross_entropy_mean')
 
     return inputs, labels, embeddings, loss
