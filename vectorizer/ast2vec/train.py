@@ -1,8 +1,17 @@
 """Train the ast2vect network."""
 
+import sys
+
+pyv3=False
+if (sys.version_info > (3, 0)):
+    pyv3=True
+if pyv3:
+    import pickle
+else:
+    import cPickle as pickle
+
 import os
 import logging
-import cPickle as pickle
 import tensorflow as tf
 import vectorizer.ast2vec.network as network
 import vectorizer.ast2vec.sampling as sampling

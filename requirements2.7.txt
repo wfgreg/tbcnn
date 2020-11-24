@@ -1,0 +1,14 @@
+requests
+requests-cache
+GitPython
+tensorflow>=1.1.0rc1,<2
+tensorflow-gpu>=1.1.0rc1,<2
+scikit-learn
+sklearn
+scipy
+MySQL-python
+sshtunnel
+scrapy
+astpretty
+astunparse
+ijson
