@@ -1,9 +1,17 @@
 """Parse nodes from a given data source."""
 
-import ijson.backends.yajl2_c as ijson
 import sys
+
+pyv3=False
+if (sys.version_info > (3, 0)):
+    pyv3=True
+if pyv3:
+    import pickle
+else:
+    import cPickle as pickle
+
+import ijson.backends.yajl2_c as ijson
 import ast,json,pprint,itertools
-import cPickle as pickle
 from collections import defaultdict
 
 import samplerjson.jsontree as jsontree
@@ -14,7 +22,7 @@ def parse(args):
         """Parse nodes with the given args."""
         print ('Loading json file')
 
-        f = open(args.infile, 'rb')
+        f = open(args.infile, 'r')
         data_source = ijson.items(f,'item')
 
         node_counts = defaultdict(int)
@@ -25,7 +33,7 @@ def parse(args):
 
         fc=0
         c=0
-        file_handler = open(args.outfile, 'wb')
+        file_handler = open(args.outfile, 'w')
         file_handler.write("[\t")
 
         for item in data_source:
@@ -80,7 +88,7 @@ def parse(args):
     """Parse nodes with the given args."""
     print ('Loading json file')
 
-    with open(args.infile, 'rb') as file_handler:
+    with open(args.infile, 'r') as file_handler:
         data_source = json.load(file_handler)
 
     print ('Json load finished')
@@ -120,7 +128,7 @@ def parse(args):
             break
     print ('dumping sample')
 
-    with open(args.outfile, 'wb') as file_handler:
+    with open(args.outfile, 'w') as file_handler:
         pickle.dump(samples, file_handler)
         file_handler.close()
 
@@ -162,7 +170,11 @@ def _traverse_tree(parentname, tree, callback):
 #    print("================================")
 #    it = iter(tree)
 #    queue = list(zip([parentname],tree))
-    queue = list(itertools.izip_longest([parentname],[tree],fillvalue=parentname))
+    queue = None
+    if pyv3:
+        queue = list(itertools.zip_longest([parentname],[tree],fillvalue=parentname))
+    else:
+        queue = list(itertools.izip_longest([parentname],[tree],fillvalue=parentname))
 
 #    pp.pprint(queue)
 
@@ -188,7 +200,10 @@ def _traverse_tree(parentname, tree, callback):
 #        print('x',nextparentname)
         children = list(jsontree.JsonTree.iter_child_nodes(current_node))
         if len(children) > 0:
-            children_list = list(itertools.izip_longest([nextparentname],children,fillvalue=nextparentname))
+            if pyv3:
+                children_list = list(itertools.zip_longest([nextparentname],children,fillvalue=nextparentname))
+            else:
+                children_list = list(itertools.izip_longest([nextparentname],children,fillvalue=nextparentname))
         else:
             children_list = []
 #        pp.pprint(children_list)

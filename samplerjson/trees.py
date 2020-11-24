@@ -1,11 +1,19 @@
 """Parse trees from a data source."""
 
-import ijson.backends.yajl2_c as ijson
 import sys
+
+pyv3=False
+if (sys.version_info > (3, 0)):
+    pyv3=True
+if pyv3:
+    import pickle
+else:
+    import cPickle as pickle
+
+import ijson.backends.yajl2_c as ijson
 import ast,astpretty,pprint
 import astunparse
 import ast,json,pprint,itertools
-import pickle
 import random
 from collections import defaultdict
 
@@ -20,7 +28,7 @@ def parse(args):
         print ('Loading json file')
 
         sys.setrecursionlimit(1000000)
-        f = open(args.infile, 'rb')
+        f = open(args.infile, 'r')
         data_source = ijson.items(f,'item')
 
         print('Json file load finished')
@@ -33,9 +41,9 @@ def parse(args):
         cv_counts = defaultdict(int)
         test_counts = defaultdict(int)
 
-        f1 = open("/tmp/cv.txt", 'wb')
-        f2 = open("/tmp/test.txt", 'wb')
-        f3 = open("/tmp/train.txt", 'wb')
+        f1 = open("/tmp/cv.txt", 'w')
+        f2 = open("/tmp/test.txt", 'w')
+        f3 = open("/tmp/train.txt", 'w')
 
         for item in data_source:
             root = item['tree']
@@ -71,17 +79,18 @@ def parse(args):
                 rc = p.wait()
             print(tmpfile+".shuffled.txt")
 
-        f1o = open(args.outfile+".cv.json", 'wb')
-        f2o = open(args.outfile+".test.json", 'wb')
-        f3o = open(args.outfile+".train.json", 'wb')
+        f1o = open(args.outfile+".cv.json", 'w')
+        f2o = open(args.outfile+".test.json", 'w')
+        f3o = open(args.outfile+".train.json", 'w')
         out_dict = {'cv':f1o,'test':f2o,'train':f3o}
         f1o.write('[\n')
         f2o.write('[\n')
         f3o.write('[\n')
-        labels = list(set(cv_counts.keys() + train_counts.keys() + test_counts.keys()))
+#        labels = list(set(cv_counts.keys() + train_counts.keys() + test_counts.keys()))
+        labels = list(set(itertools.chain(cv_counts.keys(),train_counts.keys(),test_counts.keys())))
         print(labels)
         print('Dumping sample')
-        with open(args.outfile, 'wb') as out_handler:
+        with open(args.outfile, 'w') as out_handler:
             out_handler.write('(\t[\n')
             for filelabel in ['train','test','cv']:
                 c=0
@@ -103,7 +112,7 @@ def parse(args):
             out_handler.write(json.dumps(labels))
             out_handler.write('\n)')
 
-        f4o = open(args.outfile+".labels.json", 'wb')
+        f4o = open(args.outfile+".labels.json", 'w')
         f4o.write(json.dumps(labels))
         f4o.close();
 
@@ -121,7 +130,7 @@ def parse(args):
     print ('Loading json file')
 
     sys.setrecursionlimit(1000000)
-    with open(args.infile, 'rb') as file_handler:
+    with open(args.infile, 'r') as file_handler:
 #        data_source = pickle.load(file_handler)
         data_source = json.load(file_handler)
 
@@ -163,7 +172,7 @@ def parse(args):
     # create a list of unique labels in the data
     labels = list(set(cv_counts.keys() + train_counts.keys() + test_counts.keys()))
     print('Dumping sample')
-    with open(args.outfile, 'wb') as file_handler:
+    with open(args.outfile, 'w') as file_handler:
         pickle.dump((train_samples, test_samples, cv_samples, labels), file_handler)
         file_handler.close()
     print('dump finished')
