@@ -74,7 +74,7 @@ def parse(args):
             tmpfile="/tmp/"+filelabel
             fout = open(tmpfile+".shuffled.txt","w")
             with open(tmpfile+".txt") as inhandle:
-                p = subprocess.Popen("../terashuf/terashuf",stdin=inhandle,stdout=fout)
+                p = subprocess.Popen("terashuf",stdin=inhandle,stdout=fout)
                 [output,error] = p.communicate()
                 rc = p.wait()
             print(tmpfile+".shuffled.txt")
